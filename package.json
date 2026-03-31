@@ -7,28 +7,6 @@
   "engines": {
     "vscode": "^1.74.0"
   },
-  "contributionTypes": {
-    "language": [
-      {
-        "id": "en",
-        "translations": [
-          {
-            "id": "en",
-            "path": "./package.nls.json"
-          }
-        ]
-      },
-      {
-        "id": "ko",
-        "translations": [
-          {
-            "id": "ko",
-            "path": "./package.nls.ko.json"
-          }
-        ]
-      }
-    ]
-  },
   "localizedResources": {
     "package": [
       "./package.nls.json",
@@ -52,6 +30,9 @@
   "activationEvents": [
     "onLanguage:markdown",
     "onCommand:markdown-x.openPreview",
+    "onCommand:markdown-x.exportPdf",
+    "onCommand:markdown-x.exportDocx",
+    "onCommand:markdown-x.print",
     "onView:markdown-x-toc"
   ],
   "main": "./out/extension.js",
@@ -64,16 +45,52 @@
         "icon": "$(open-preview)"
       },
       {
-        "command": "markdown-x.openPreviewToSide",
-        "title": "%markdown-x.commands.openPreviewToSide%",
-        "category": "Markdown X",
-        "icon": "$(open-preview)"
-      },
-      {
         "command": "markdown-x.refreshPreview",
         "title": "%markdown-x.commands.refreshPreview%",
         "category": "Markdown X",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "markdown-x.exportPdf",
+        "title": "%markdown-x.commands.exportPdf%",
+        "category": "Markdown X",
+        "icon": "$(file-pdf)"
+      },
+      {
+        "command": "markdown-x.exportDocx",
+        "title": "%markdown-x.commands.exportDocx%",
+        "category": "Markdown X",
+        "icon": "$(file-text)"
+      },
+      {
+        "command": "markdown-x.print",
+        "title": "%markdown-x.commands.print%",
+        "category": "Markdown X",
+        "icon": "$(output)"
+      },
+      {
+        "command": "markdown-x.increaseFontSize",
+        "title": "%markdown-x.commands.increaseFontSize%",
+        "category": "Markdown X",
+        "icon": "$(add)"
+      },
+      {
+        "command": "markdown-x.decreaseFontSize",
+        "title": "%markdown-x.commands.decreaseFontSize%",
+        "category": "Markdown X",
+        "icon": "$(remove)"
+      },
+      {
+        "command": "markdown-x.setFontSize",
+        "title": "%markdown-x.commands.setFontSize%",
+        "category": "Markdown X",
+        "icon": "$(text-size)"
+      },
+      {
+        "command": "markdown-x.changeFontFamily",
+        "title": "%markdown-x.commands.changeFontFamily%",
+        "category": "Markdown X",
+        "icon": "$(whole-word)"
       },
       {
         "command": "markdown-x.changeTheme",
@@ -82,18 +99,90 @@
         "icon": "$(color-mode)"
       },
       {
-        "command": "markdown-x.toggleToc",
-        "title": "%markdown-x.commands.toggleToc%",
+        "command": "markdown-x.togglePagePreview",
+        "title": "%markdown-x.commands.togglePagePreview%",
         "category": "Markdown X",
-        "icon": "$(list-tree)"
+        "icon": "$(preview)"
+      },
+      {
+        "command": "markdown-x.changePageSize",
+        "title": "%markdown-x.commands.changePageSize%",
+        "category": "Markdown X",
+        "icon": "$(notebook)"
+      },
+      {
+        "command": "markdown-x.changeMargin",
+        "title": "%markdown-x.commands.changeMargin%",
+        "category": "Markdown X",
+        "icon": "$(layout)"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "markdown-x.openPreviewToSide",
+          "command": "markdown-x.openPreview",
           "group": "navigation",
           "when": "editorLangId == markdown"
+        },
+        {
+          "command": "markdown-x.togglePagePreview",
+          "group": "navigation@1",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.exportPdf",
+          "group": "navigation@2",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.decreaseFontSize",
+          "group": "navigation@3",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.setFontSize",
+          "group": "navigation@4",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.increaseFontSize",
+          "group": "navigation@5",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.changeFontFamily",
+          "group": "navigation@6",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.refreshPreview",
+          "group": "1_style@0",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.changeTheme",
+          "group": "1_style@2",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.changePageSize",
+          "group": "1_style@3",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.changeMargin",
+          "group": "1_style@4",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.exportDocx",
+          "group": "2_export@1",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.print",
+          "group": "2_export@2",
+          "when": "markdown-x:previewOpen"
         }
       ],
       "editor/context": [
@@ -104,26 +193,22 @@
         }
       ],
       "commandPalette": [
-        {
-          "command": "markdown-x.openPreview",
-          "when": "editorLangId == markdown"
-        },
-        {
-          "command": "markdown-x.openPreviewToSide",
-          "when": "editorLangId == markdown"
-        }
+        { "command": "markdown-x.openPreview", "when": "true" },
+        { "command": "markdown-x.refreshPreview", "when": "true" },
+        { "command": "markdown-x.exportPdf", "when": "true" },
+        { "command": "markdown-x.exportDocx", "when": "true" },
+        { "command": "markdown-x.print", "when": "true" },
+        { "command": "markdown-x.increaseFontSize", "when": "true" },
+        { "command": "markdown-x.decreaseFontSize", "when": "true" },
+        { "command": "markdown-x.setFontSize", "when": "true" },
+        { "command": "markdown-x.changeFontFamily", "when": "true" },
+        { "command": "markdown-x.changeTheme", "when": "true" },
+        { "command": "markdown-x.togglePagePreview", "when": "true" },
+        { "command": "markdown-x.changePageSize", "when": "true" },
+        { "command": "markdown-x.changeMargin", "when": "true" }
       ]
     },
-    "views": {
-      "explorer": [
-        {
-          "id": "markdown-x-toc",
-          "name": "%markdown-x.views.toc%",
-          "when": "markdown-x:showToc",
-          "group": "markdown-x"
-        }
-      ]
-    },
+    "views": {},
     "viewsContainers": {
       "activitybar": [
         {
@@ -188,6 +273,42 @@
           "minimum": 1,
           "maximum": 6,
           "description": "%markdown-x.configuration.maxTocLevel%"
+        },
+        "markdown-x.fontFamily": {
+          "type": "string",
+          "default": "",
+          "description": "%markdown-x.configuration.fontFamily%"
+        },
+        "markdown-x.codeFontFamily": {
+          "type": "string",
+          "default": "",
+          "description": "%markdown-x.configuration.codeFontFamily%"
+        },
+        "markdown-x.customCssPath": {
+          "type": "string",
+          "default": "",
+          "description": "%markdown-x.configuration.customCssPath%"
+        },
+        "markdown-x.customCss": {
+          "type": "string",
+          "default": "",
+          "description": "%markdown-x.configuration.customCss%"
+        },
+        "markdown-x.pdf.pageSize": {
+          "type": "string",
+          "default": "A4",
+          "enum": ["A4", "A3", "Letter", "Legal"],
+          "description": "%markdown-x.configuration.pdf.pageSize%"
+        },
+        "markdown-x.pdf.margin": {
+          "type": "string",
+          "default": "20mm",
+          "description": "%markdown-x.configuration.pdf.margin%"
+        },
+        "markdown-x.pdf.headerFooter": {
+          "type": "boolean",
+          "default": true,
+          "description": "%markdown-x.configuration.pdf.headerFooter%"
         }
       }
     }
@@ -199,17 +320,22 @@
     "lint": "eslint src --ext ts"
   },
   "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
+    "mocha": "^11.7.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
+    "highlight.js": "^11.0.0",
+    "html-to-docx": "^1.8.0",
     "marked": "^12.0.0",
-    "mermaid": "^10.0.0",
-    "katex": "^0.16.0",
-    "highlight.js": "^11.0.0"
+    "puppeteer-core": "^24.40.0"
   }
 }
