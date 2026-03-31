@@ -2,11 +2,38 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Extension",
+      "name": "Run Extension (Demo)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}"
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/sample"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension (Open File)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/plans/ux-design.md"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension (Open Folder)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}"
       ],
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
