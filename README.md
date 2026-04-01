@@ -4,6 +4,8 @@ Ultimate Markdown Viewer for VSCode with high-quality document export.
 
 Markdown X is a **viewer-focused** extension. It does not add editing features -- it renders your markdown beautifully and exports it to PDF and Word with page-aware layout.
 
+![Preview](images/screenshot-preview.png)
+
 ## Features
 
 ### Preview
@@ -17,6 +19,8 @@ Markdown X is a **viewer-focused** extension. It does not add editing features -
 - **4 themes** -- Auto (follows VS Code), Light, Dark, Sepia
 
 ### Page Preview
+
+![PDF Page Preview](images/screenshot-pdf.png)
 
 - **PDF-based page preview** -- generates a real PDF and opens it in a VSCode tab
 - **100% accurate** -- shows exactly what the exported PDF will look like
@@ -44,6 +48,8 @@ Markdown X is a **viewer-focused** extension. It does not add editing features -
 - **Page size and margins** -- for PDF export
 
 ### Diagram Controls
+
+![Diagram Resize](images/screenshot-diagram.png)
 
 - **Hover to resize** -- floating toolbar appears on mermaid diagrams
 - **Scale 30%-200%** with +/- buttons
@@ -161,6 +167,10 @@ src/
     chromeFinder.ts        System Chrome/Edge detection
     pageBreakProcessor.ts  Long table/code auto-split for PDF
 ```
+
+## Feedback
+
+- Bug reports and feature requests: [GitHub Issues](https://github.com/xieum-cloud/markdown-x/issues)
 
 ## License
 

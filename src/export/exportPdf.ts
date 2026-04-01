@@ -10,7 +10,7 @@ export async function exportPdf(document: vscode.TextDocument): Promise<void> {
     const chromePath = findChromePath();
     if (!chromePath) {
         const action = await vscode.window.showErrorMessage(
-            'Chrome, Edge, or Chromium is required for PDF export. Please install one of them.',
+            'A Chromium-based browser (Chrome, Edge, Brave, Arc) is required for PDF export. Please install one.',
             'Download Chrome'
         );
         if (action === 'Download Chrome') {
