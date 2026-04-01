@@ -51,6 +51,20 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "keybindings": [
+      {
+        "command": "markdown-x.openPreview",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorLangId == markdown"
+      },
+      {
+        "command": "markdown-x.togglePagePreview",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "editorLangId == markdown"
+      }
+    ],
     "commands": [
       {
         "command": "markdown-x.openPreview",
@@ -213,7 +227,7 @@
         },
         {
           "command": "markdown-x.refreshPreview",
-          "when": "true"
+          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.exportPdf",
@@ -229,23 +243,23 @@
         },
         {
           "command": "markdown-x.increaseFontSize",
-          "when": "true"
+          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.decreaseFontSize",
-          "when": "true"
+          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.setFontSize",
-          "when": "true"
+          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.changeFontFamily",
-          "when": "true"
+          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.changeTheme",
-          "when": "true"
+          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.togglePagePreview",

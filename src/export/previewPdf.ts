@@ -14,7 +14,13 @@ import { getPageBreakScript } from './pageBreakProcessor';
 export async function previewPdf(document: vscode.TextDocument): Promise<void> {
     const chromePath = findChromePath();
     if (!chromePath) {
-        vscode.window.showErrorMessage('Chrome/Edge is required for page preview.');
+        const action = await vscode.window.showErrorMessage(
+            'A Chromium-based browser (Chrome, Edge, Brave, Arc) is required for page preview.',
+            'Download Chrome'
+        );
+        if (action === 'Download Chrome') {
+            vscode.env.openExternal(vscode.Uri.parse('https://www.google.com/chrome/'));
+        }
         return;
     }
 

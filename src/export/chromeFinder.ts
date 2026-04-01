@@ -10,7 +10,9 @@ export function findChromePath(): string | undefined {
         const paths = [
             '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
             '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+            '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
             '/Applications/Chromium.app/Contents/MacOS/Chromium',
+            '/Applications/Arc.app/Contents/MacOS/Arc',
         ];
         return paths.find(p => fs.existsSync(p));
     }
@@ -26,6 +28,8 @@ export function findChromePath(): string | undefined {
             `${localAppData}\\Google\\Chrome\\Application\\chrome.exe`,
             `${programFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
             `${programFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
+            `${programFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+            `${localAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
         ];
         return paths.find(p => fs.existsSync(p));
     }
@@ -37,6 +41,7 @@ export function findChromePath(): string | undefined {
         '/usr/bin/chromium-browser',
         '/usr/bin/chromium',
         '/usr/bin/microsoft-edge',
+        '/usr/bin/brave-browser',
     ];
     return paths.find(p => fs.existsSync(p));
 }
