@@ -1,5 +1,8 @@
 # Markdown X
 
+[![Version](https://img.shields.io/visual-studio-marketplace/v/xieum-cloud.markdown-x)](https://marketplace.visualstudio.com/items?itemName=xieum-cloud.markdown-x)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/xieum-cloud.markdown-x)](https://marketplace.visualstudio.com/items?itemName=xieum-cloud.markdown-x)
+
 Ultimate Markdown Viewer for VSCode with high-quality document export.
 
 Markdown X is a **viewer-focused** extension. It does not add editing features -- it renders your markdown beautifully and exports it to PDF and Word with page-aware layout.
