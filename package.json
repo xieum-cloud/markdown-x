@@ -1,11 +1,25 @@
 {
   "name": "markdown-x",
   "displayName": "Markdown X",
-  "description": "Ultimate Markdown Viewer with TOC Navigation, Custom Themes, Image Lightbox, and Interactive Diagrams",
+  "description": "Ultimate Markdown Viewer with PDF/Word export, page-aware layout, Mermaid diagrams, KaTeX math, and custom themes",
   "version": "0.1.0",
-  "publisher": "ilovecorea",
+  "publisher": "xieum-cloud",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xieum-cloud/markdown-x"
+  },
+  "homepage": "https://github.com/xieum-cloud/markdown-x#readme",
+  "bugs": {
+    "url": "https://github.com/xieum-cloud/markdown-x/issues"
+  },
   "engines": {
     "vscode": "^1.74.0"
+  },
+  "galleryBanner": {
+    "color": "#1e3a5f",
+    "theme": "dark"
   },
   "localizedResources": {
     "package": [
@@ -193,28 +207,57 @@
         }
       ],
       "commandPalette": [
-        { "command": "markdown-x.openPreview", "when": "true" },
-        { "command": "markdown-x.refreshPreview", "when": "true" },
-        { "command": "markdown-x.exportPdf", "when": "true" },
-        { "command": "markdown-x.exportDocx", "when": "true" },
-        { "command": "markdown-x.print", "when": "true" },
-        { "command": "markdown-x.increaseFontSize", "when": "true" },
-        { "command": "markdown-x.decreaseFontSize", "when": "true" },
-        { "command": "markdown-x.setFontSize", "when": "true" },
-        { "command": "markdown-x.changeFontFamily", "when": "true" },
-        { "command": "markdown-x.changeTheme", "when": "true" },
-        { "command": "markdown-x.togglePagePreview", "when": "true" },
-        { "command": "markdown-x.changePageSize", "when": "true" },
-        { "command": "markdown-x.changeMargin", "when": "true" }
-      ]
-    },
-    "views": {},
-    "viewsContainers": {
-      "activitybar": [
         {
-          "id": "markdown-x",
-          "title": "%markdown-x.viewsContainers.activitybar.title%",
-          "icon": "$(markdown)"
+          "command": "markdown-x.openPreview",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.refreshPreview",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.exportPdf",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.exportDocx",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.print",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.increaseFontSize",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.decreaseFontSize",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.setFontSize",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.changeFontFamily",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.changeTheme",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.togglePagePreview",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.changePageSize",
+          "when": "true"
+        },
+        {
+          "command": "markdown-x.changeMargin",
+          "when": "true"
         }
       ]
     },
@@ -297,7 +340,12 @@
         "markdown-x.pdf.pageSize": {
           "type": "string",
           "default": "A4",
-          "enum": ["A4", "A3", "Letter", "Legal"],
+          "enum": [
+            "A4",
+            "A3",
+            "Letter",
+            "Legal"
+          ],
           "description": "%markdown-x.configuration.pdf.pageSize%"
         },
         "markdown-x.pdf.margin": {
@@ -314,10 +362,14 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run package",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts"
+    "bundle": "node esbuild.js",
+    "bundle:watch": "node esbuild.js --watch",
+    "package": "node esbuild.js --production",
+    "lint": "eslint src --ext ts",
+    "test": "npx ts-node src/markdownParser.test.ts"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0",
@@ -326,6 +378,7 @@
     "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "esbuild": "^0.27.4",
     "eslint": "^8.0.0",
     "mocha": "^11.7.5",
     "ts-node": "^10.9.2",

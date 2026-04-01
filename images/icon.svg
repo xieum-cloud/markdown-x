@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f2027"/>
+      <stop offset="50%" style="stop-color:#203a43"/>
+      <stop offset="100%" style="stop-color:#2c5364"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d2ff"/>
+      <stop offset="100%" style="stop-color:#3a7bd5"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="128" height="128" rx="22" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <line x1="0" y1="42" x2="128" y2="42" stroke="#ffffff" stroke-width="0.3" opacity="0.08"/>
+  <line x1="0" y1="64" x2="128" y2="64" stroke="#ffffff" stroke-width="0.3" opacity="0.08"/>
+  <line x1="0" y1="86" x2="128" y2="86" stroke="#ffffff" stroke-width="0.3" opacity="0.08"/>
+  <line x1="42" y1="0" x2="42" y2="128" stroke="#ffffff" stroke-width="0.3" opacity="0.08"/>
+  <line x1="86" y1="0" x2="86" y2="128" stroke="#ffffff" stroke-width="0.3" opacity="0.08"/>
+
+  <!-- Document page shape -->
+  <rect x="24" y="18" width="58" height="72" rx="4" fill="#ffffff" opacity="0.07"/>
+  <rect x="28" y="22" width="58" height="72" rx="4" fill="#ffffff" opacity="0.1"/>
+
+  <!-- M letter -->
+  <text x="18" y="84" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="68" fill="#ffffff" opacity="0.95">M</text>
+
+  <!-- x letter with stronger stroke outline -->
+  <text x="72" y="84" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="52" fill="#00d2ff" stroke="#007a99" stroke-width="2" filter="url(#glow)">x</text>
+
+  <!-- Bottom accent bars -->
+  <rect x="18" y="96" width="92" height="3" rx="1.5" fill="url(#accent)" opacity="0.8"/>
+  <rect x="18" y="104" width="60" height="2" rx="1" fill="url(#accent)" opacity="0.35"/>
+  <rect x="18" y="110" width="40" height="2" rx="1" fill="url(#accent)" opacity="0.15"/>
+</svg>
