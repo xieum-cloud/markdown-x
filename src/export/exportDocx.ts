@@ -39,13 +39,16 @@ ${htmlContent}
                     table: { row: { cantSplit: true } },
                     title,
                     margins: {
-                        top: 1440,    // 1 inch in twips (1440 twips = 1 inch)
-                        right: 1080,  // 0.75 inch
+                        top: 1440,
+                        right: 1080,
                         bottom: 1440,
                         left: 1080,
+                        header: 720,
+                        footer: 720,
+                        gutter: 0,
                     },
                     font: fontFamily,
-                    fontSize: fontSize * 2, // half-points
+                    fontSize: fontSize * 2,
                 });
 
                 progress.report({ increment: 30, message: 'Saving...' });

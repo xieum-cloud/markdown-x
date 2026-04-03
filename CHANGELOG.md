@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 (2026-04-03)
+
+- Custom colored toolbar icons (cyan/blue)
+- Word export fix (corrupted docx)
+- Font/theme settings applied to print and PDF export
+- Toolbar cleanup and Mx: prefix for menu items
+
 ## 0.1.0 (2026-04-01)
 
 First release.

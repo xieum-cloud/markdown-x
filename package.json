@@ -82,13 +82,19 @@
         "command": "markdown-x.exportPdf",
         "title": "%markdown-x.commands.exportPdf%",
         "category": "Markdown X",
-        "icon": "$(file-pdf)"
+        "icon": {
+          "dark": "images/icons/export-pdf-dark.svg",
+          "light": "images/icons/export-pdf-light.svg"
+        }
       },
       {
         "command": "markdown-x.exportDocx",
         "title": "%markdown-x.commands.exportDocx%",
         "category": "Markdown X",
-        "icon": "$(file-text)"
+        "icon": {
+          "dark": "images/icons/export-docx-dark.svg",
+          "light": "images/icons/export-docx-light.svg"
+        }
       },
       {
         "command": "markdown-x.print",
@@ -130,7 +136,10 @@
         "command": "markdown-x.togglePagePreview",
         "title": "%markdown-x.commands.togglePagePreview%",
         "category": "Markdown X",
-        "icon": "$(preview)"
+        "icon": {
+          "dark": "images/icons/page-preview-dark.svg",
+          "light": "images/icons/page-preview-light.svg"
+        }
       },
       {
         "command": "markdown-x.changePageSize",
@@ -163,53 +172,43 @@
           "when": "markdown-x:previewOpen"
         },
         {
-          "command": "markdown-x.decreaseFontSize",
+          "command": "markdown-x.exportDocx",
           "group": "navigation@3",
           "when": "markdown-x:previewOpen"
         },
         {
-          "command": "markdown-x.setFontSize",
-          "group": "navigation@4",
-          "when": "markdown-x:previewOpen"
-        },
-        {
-          "command": "markdown-x.increaseFontSize",
-          "group": "navigation@5",
-          "when": "markdown-x:previewOpen"
-        },
-        {
           "command": "markdown-x.changeFontFamily",
-          "group": "navigation@6",
+          "group": "1_mx@1",
           "when": "markdown-x:previewOpen"
         },
         {
-          "command": "markdown-x.refreshPreview",
-          "group": "1_style@0",
+          "command": "markdown-x.setFontSize",
+          "group": "1_mx@2",
           "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.changeTheme",
-          "group": "1_style@2",
+          "group": "1_mx@3",
           "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.changePageSize",
-          "group": "1_style@3",
+          "group": "1_mx@4",
           "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.changeMargin",
-          "group": "1_style@4",
-          "when": "markdown-x:previewOpen"
-        },
-        {
-          "command": "markdown-x.exportDocx",
-          "group": "2_export@1",
+          "group": "1_mx@5",
           "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.print",
-          "group": "2_export@2",
+          "group": "1_mx@6",
+          "when": "markdown-x:previewOpen"
+        },
+        {
+          "command": "markdown-x.refreshPreview",
+          "group": "1_mx@7",
           "when": "markdown-x:previewOpen"
         }
       ],
@@ -240,14 +239,6 @@
         {
           "command": "markdown-x.print",
           "when": "true"
-        },
-        {
-          "command": "markdown-x.increaseFontSize",
-          "when": "markdown-x:previewOpen"
-        },
-        {
-          "command": "markdown-x.decreaseFontSize",
-          "when": "markdown-x:previewOpen"
         },
         {
           "command": "markdown-x.setFontSize",
