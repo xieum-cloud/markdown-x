@@ -2,7 +2,7 @@
   "name": "markdown-x",
   "displayName": "Markdown X",
   "description": "Ultimate Markdown Viewer with PDF/Word export, page-aware layout, Mermaid diagrams, KaTeX math, and custom themes",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "xieum-cloud",
   "license": "MIT",
   "icon": "images/icon.png",
