@@ -44,7 +44,7 @@ Markdown X is a **viewer-focused** extension. It does not add editing features -
 ### Customization
 
 - **Font family** -- choose from preset Korean/English fonts or enter custom
-- **Font size** -- adjustable via toolbar (+/-), direct input, or settings (10-32px)
+- **Font size** -- adjustable via menu (preset sizes or direct input, 10-32px)
 - **Theme** -- Auto, Light, Dark, Sepia
 - **Custom CSS** -- external CSS file or inline CSS
 - **Code font** -- separate font setting for code blocks
@@ -70,18 +70,17 @@ Markdown X is a **viewer-focused** extension. It does not add editing features -
 
 | Command | Description |
 | ------- | ----------- |
-| `Markdown X: Open Preview` | Open preview to the side |
-| `Markdown X: Refresh Preview` | Force refresh preview |
-| `Markdown X: Page Preview` | Generate PDF and show in VSCode tab |
-| `Markdown X: Export to PDF` | Export as PDF with page-aware layout |
-| `Markdown X: Export to Word` | Export as .docx |
-| `Markdown X: Print` | Open in browser for printing |
-| `Markdown X: Set Font Size` | Enter font size directly |
-| `Markdown X: Increase/Decrease Font Size` | Adjust font size by 2px |
-| `Markdown X: Change Font` | Select font family |
-| `Markdown X: Change Theme` | Select preview theme |
-| `Markdown X: Change Page Size` | Select page size |
-| `Markdown X: Change Page Margin` | Select page margins |
+| `Mx: Open Preview` | Open preview to the side |
+| `Mx: Page Preview` | Generate PDF and show in VSCode tab |
+| `Mx: Export to PDF` | Export as PDF with page-aware layout |
+| `Mx: Export to Word` | Export as .docx |
+| `Mx: Print` | Open in browser for printing |
+| `Mx: Set Font Size` | Select or enter font size |
+| `Mx: Change Font` | Select font family |
+| `Mx: Change Theme` | Select preview theme |
+| `Mx: Change Page Size` | Select page size |
+| `Mx: Change Page Margin` | Select page margins |
+| `Mx: Refresh Preview` | Force refresh preview |
 
 ## Settings
 
@@ -128,7 +127,14 @@ This ensures the PDF export renders diagrams at exactly the same size as the pre
 ## Requirements
 
 - **VSCode** 1.74+
-- **Chrome, Edge, or Chromium** -- required for PDF export and page preview (auto-detected)
+- **Chromium-based browser** (Chrome, Edge, Brave, or Arc) -- required for PDF export and page preview (auto-detected)
+
+## Keyboard Shortcuts
+
+| Shortcut | Command |
+| -------- | ------- |
+| `Cmd+Shift+V` (Mac) / `Ctrl+Shift+V` (Win) | Open Preview |
+| `Cmd+K V` (Mac) / `Ctrl+K V` (Win) | Page Preview |
 
 ## Internationalization
 
