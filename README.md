@@ -171,6 +171,16 @@ src/
     pageBreakProcessor.ts  Long table/code auto-split for PDF
 ```
 
+## Roadmap
+
+- Improve Word export quality (style mapping)
+- Offline Mermaid/KaTeX (remove CDN dependency)
+- PlantUML support
+- Image resize controls
+- Export templates (cover page, custom headers/footers)
+- Slide mode (markdown to presentation)
+- More languages (ja, zh-cn, de)
+
 ## Feedback
 
 - Bug reports and feature requests: [GitHub Issues](https://github.com/xieum-cloud/markdown-x/issues)
