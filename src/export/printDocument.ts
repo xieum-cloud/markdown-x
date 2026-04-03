@@ -15,15 +15,29 @@ export async function printDocument(document: vscode.TextDocument): Promise<void
     const htmlContent = parseMarkdown(content);
     const title = path.basename(document.fileName, path.extname(document.fileName));
 
+    // Read custom CSS file if configured
+    let customCssContent = config.get<string>('customCss', '') || '';
+    const customCssPath = config.get<string>('customCssPath', '');
+    if (customCssPath) {
+        try {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            const baseDir = workspaceFolders?.[0]?.uri.fsPath || path.dirname(document.fileName);
+            const cssFullPath = path.isAbsolute(customCssPath)
+                ? customCssPath
+                : path.join(baseDir, customCssPath);
+            customCssContent += '\n' + fs.readFileSync(cssFullPath, 'utf-8');
+        } catch { /* ignore missing file */ }
+    }
+
     const exportHtml = getExportHtml(htmlContent, {
         title,
         fontSize: config.get<number>('fontSize', 16),
         lineHeight: config.get<number>('lineHeight', 1.6),
-        fontFamily: config.get<string>('fontFamily', ''),
-        codeFontFamily: config.get<string>('codeFontFamily', ''),
+        fontFamily: config.get<string>('fontFamily', '') || undefined,
+        codeFontFamily: config.get<string>('codeFontFamily', '') || undefined,
         pageSize: config.get<string>('pdf.pageSize', 'A4'),
         margin: config.get<string>('pdf.margin', '20mm'),
-        customCss: config.get<string>('customCss', ''),
+        customCss: customCssContent,
     });
 
     // Add auto-print script

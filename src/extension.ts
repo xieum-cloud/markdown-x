@@ -72,17 +72,32 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('markdown-x.setFontSize', async () => {
             const config = vscode.workspace.getConfiguration('markdown-x');
             const current = config.get<number>('fontSize', 16);
-            const input = await vscode.window.showInputBox({
-                prompt: 'Font size (10-32)',
-                value: String(current),
-                validateInput: (v) => {
-                    const n = parseInt(v, 10);
-                    if (isNaN(n) || n < 10 || n > 32) return '10-32 사이 숫자를 입력하세요';
-                    return null;
-                },
+            const sizes = [12, 14, 16, 18, 20, 24, 28, 32].map(s => ({
+                label: `${s}px`,
+                description: s === current ? '(current)' : '',
+                value: s,
+            }));
+            sizes.push({ label: 'Custom...', description: 'Enter size directly', value: -1 });
+
+            const selected = await vscode.window.showQuickPick(sizes, {
+                placeHolder: `Current: ${current}px`,
             });
-            if (!input) return;
-            const size = parseInt(input, 10);
+            if (!selected) return;
+
+            let size = selected.value;
+            if (size === -1) {
+                const input = await vscode.window.showInputBox({
+                    prompt: 'Font size (10-32)',
+                    value: String(current),
+                    validateInput: (v) => {
+                        const n = parseInt(v, 10);
+                        if (isNaN(n) || n < 10 || n > 32) return '10-32';
+                        return null;
+                    },
+                });
+                if (!input) return;
+                size = parseInt(input, 10);
+            }
             await config.update('fontSize', size, true);
             previewProvider.refresh();
         }),
