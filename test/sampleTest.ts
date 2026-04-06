@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { parseMarkdown, parseToc } from './markdownParser';
+import { parseMarkdown, parseToc } from '../src/markdownParser';
 
 const samplePath = path.join(__dirname, '..', 'sample', 'demo.md');
 const content = fs.readFileSync(samplePath, 'utf-8');

@@ -2,7 +2,7 @@
   "name": "markdown-x",
   "displayName": "Markdown X",
   "description": "Ultimate Markdown Viewer with PDF/Word export, page-aware layout, Mermaid diagrams, KaTeX math, and custom themes",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "xieum-cloud",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -46,8 +46,7 @@
     "onCommand:markdown-x.openPreview",
     "onCommand:markdown-x.exportPdf",
     "onCommand:markdown-x.exportDocx",
-    "onCommand:markdown-x.print",
-    "onView:markdown-x-toc"
+    "onCommand:markdown-x.print"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -374,10 +373,9 @@
     "bundle:watch": "node esbuild.js --watch",
     "package": "node esbuild.js --production",
     "lint": "eslint src --ext ts",
-    "test": "npx ts-node src/markdownParser.test.ts"
+    "test": "npx ts-node test/markdownParser.test.ts"
   },
   "devDependencies": {
-    "@types/archiver": "^7.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.74.0",
@@ -390,7 +388,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "archiver": "^7.0.1",
     "highlight.js": "^11.0.0",
     "html-to-docx": "^1.8.0",
     "marked": "^12.0.0",

@@ -8,6 +8,10 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
     private panel: vscode.WebviewPanel | undefined;
     private currentDocument: vscode.TextDocument | undefined;
     private extensionUri: vscode.Uri;
+    private cachedCustomCss: string = '';
+    private scrollSyncEnabled = false;
+    private previewFocused = false;
+    private lastCustomCssPath: string = '';
 
     constructor(extensionUri: vscode.Uri) {
         this.extensionUri = extensionUri;
@@ -18,6 +22,7 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         state: unknown
     ): Promise<void> {
         this.panel = webviewPanel;
+        this.initialized = false;
         this.setupWebview();
 
         // Re-render content from the active markdown editor
@@ -39,6 +44,9 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         setTimeout(() => {
             webviewPanel.reveal(undefined, true);
         }, 500);
+        // Delay scroll sync activation to prevent forced scroll on restore
+        this.scrollSyncEnabled = false;
+        setTimeout(() => { this.scrollSyncEnabled = true; }, 3000);
     }
 
     openPreview(document: vscode.TextDocument, toSide: boolean): void {
@@ -46,6 +54,7 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
 
         if (this.panel) {
             this.panel.reveal(toSide ? vscode.ViewColumn.Two : vscode.ViewColumn.One);
+            this.initialized = false;
             this.updateContent(document);
             return;
         }
@@ -67,6 +76,8 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         this.setupWebview();
         this.updateContent(document);
         vscode.commands.executeCommand('setContext', 'markdown-x:previewOpen', true);
+        this.scrollSyncEnabled = false;
+        setTimeout(() => { this.scrollSyncEnabled = true; }, 2000);
     }
 
     private setupWebview(): void {
@@ -75,7 +86,17 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         this.panel.onDidDispose(
             () => {
                 this.panel = undefined;
+                this.initialized = false;
+                this.previewFocused = false;
                 vscode.commands.executeCommand('setContext', 'markdown-x:previewOpen', false);
+            },
+            null,
+            []
+        );
+
+        this.panel.onDidChangeViewState(
+            (e) => {
+                this.previewFocused = e.webviewPanel.active;
             },
             null,
             []
@@ -85,8 +106,16 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
             async (message) => {
                 switch (message.type) {
                     case 'scroll': {
-                        // Preview -> editor sync disabled to prevent infinite loop
-                        // Editor -> preview sync is handled by onDidChangeTextEditorVisibleRanges
+                        break;
+                    }
+                    case 'changeFontSize': {
+                        const config = vscode.workspace.getConfiguration('markdown-x');
+                        const current = config.get<number>('fontSize', 16);
+                        const next = Math.max(10, Math.min(32, current + message.delta));
+                        if (next !== current) {
+                            config.update('fontSize', next, true);
+                            this.refresh();
+                        }
                         break;
                     }
                     case 'clickLink': {
@@ -233,12 +262,21 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         );
     }
 
+    private initialized = false;
     updateContent(document: vscode.TextDocument): void {
         if (!this.panel) return;
         if (this.currentDocument?.fileName !== document.fileName) return;
 
-        const html = this.generateHtml(document.getText(), document.fileName);
-        this.panel.webview.html = html;
+        if (!this.initialized) {
+            // First render: set full HTML
+            const html = this.generateHtml(document.getText(), document.fileName);
+            this.panel.webview.html = html;
+            this.initialized = true;
+        } else {
+            // Subsequent renders: update content only via message
+            const htmlContent = this.renderMarkdown(document.getText(), document.fileName);
+            this.panel.webview.postMessage({ type: 'updateContent', html: htmlContent });
+        }
         this.panel.title = `Preview: ${path.basename(document.fileName)}`;
     }
 
@@ -247,6 +285,7 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
     }
 
     scrollToLine(line: number): void {
+        if (!this.scrollSyncEnabled || this.previewFocused) return;
         this.panel?.webview.postMessage({ type: 'scrollToLine', line });
     }
 
@@ -256,6 +295,7 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
 
     refresh(): void {
         if (this.currentDocument) {
+            this.initialized = false; // Force full HTML rebuild
             this.updateContent(this.currentDocument);
         }
     }
@@ -294,19 +334,23 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
 
         const htmlContent = this.renderMarkdown(content, filePath);
 
-        // Load custom CSS file
+        // Load custom CSS file (cached)
         let customCssFileContent = '';
         if (customCssPath) {
-            try {
-                const workspaceFolders = vscode.workspace.workspaceFolders;
-                const baseDir = workspaceFolders?.[0]?.uri.fsPath || path.dirname(filePath);
-                const cssFullPath = path.isAbsolute(customCssPath)
-                    ? customCssPath
-                    : path.join(baseDir, customCssPath);
-                customCssFileContent = fs.readFileSync(cssFullPath, 'utf-8');
-            } catch {
-                // Silently ignore missing CSS file
+            if (customCssPath !== this.lastCustomCssPath) {
+                try {
+                    const workspaceFolders = vscode.workspace.workspaceFolders;
+                    const baseDir = workspaceFolders?.[0]?.uri.fsPath || path.dirname(filePath);
+                    const cssFullPath = path.isAbsolute(customCssPath)
+                        ? customCssPath
+                        : path.join(baseDir, customCssPath);
+                    this.cachedCustomCss = fs.readFileSync(cssFullPath, 'utf-8');
+                    this.lastCustomCssPath = customCssPath;
+                } catch {
+                    this.cachedCustomCss = '';
+                }
             }
+            customCssFileContent = this.cachedCustomCss;
         }
 
         // Generate nonce for CSP
@@ -550,6 +594,76 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
                     document.body.className = 'theme-' + message.theme;
                     ${enableMermaid ? 'location.reload();' : ''}
                     break;
+                case 'updateContent': {
+                    const contentEl = document.getElementById('content');
+                    if (contentEl) {
+                        const scrollPos = window.scrollY;
+
+                        // Detach existing mermaid diagrams (preserve original nodes with events)
+                        ${enableMermaid ? `
+                        const savedMermaids = [];
+                        contentEl.querySelectorAll('.mermaid').forEach((el) => {
+                            if (el.querySelector('svg')) {
+                                const placeholder = document.createComment('mermaid');
+                                el.replaceWith(placeholder);
+                                savedMermaids.push(el);
+                            }
+                        });` : ''}
+
+                        contentEl.innerHTML = message.html;
+
+                        // Restore original mermaid nodes (with SVG, toolbar, and event listeners intact)
+                        ${enableMermaid ? `
+                        const newMermaids = contentEl.querySelectorAll('.mermaid');
+                        let needsNewRender = false;
+                        let savedIdx = 0;
+                        newMermaids.forEach((el) => {
+                            if (savedIdx < savedMermaids.length) {
+                                el.replaceWith(savedMermaids[savedIdx]);
+                                savedIdx++;
+                            } else {
+                                needsNewRender = true;
+                            }
+                        });
+                        if (needsNewRender && typeof mermaid !== 'undefined') {
+                            mermaid.run({ querySelector: '.mermaid:not([data-processed])' }).then(() => {
+                                setTimeout(attachMermaidToolbars, 500);
+                            }).catch(() => {});
+                        }` : ''}
+
+                        window.scrollTo(0, scrollPos);
+
+                        // Re-run KaTeX
+                        if (typeof renderMathInElement !== 'undefined') {
+                            renderMathInElement(contentEl, {
+                                delimiters: [
+                                    {left: '$$', right: '$$', display: true},
+                                    {left: '$', right: '$', display: false}
+                                ]
+                            });
+                        }
+                        // Re-attach lightbox
+                        ${enableImageLightbox ? `
+                        contentEl.querySelectorAll('img').forEach(img => {
+                            img.addEventListener('click', () => {
+                                const lb = document.getElementById('lightbox');
+                                const lbi = document.getElementById('lightbox-img');
+                                if (lb && lbi) { lbi.src = img.src; lb.classList.add('active'); }
+                            });
+                        });` : ''}
+                        // Re-attach link handlers
+                        contentEl.querySelectorAll('a').forEach(link => {
+                            link.addEventListener('click', (e) => {
+                                const href = link.getAttribute('href');
+                                if (href && !href.startsWith('#')) {
+                                    e.preventDefault();
+                                    vscode.postMessage({ type: 'clickLink', href: href });
+                                }
+                            });
+                        });
+                    }
+                    break;
+                }
                 case 'scrollToLine': {
                     ${enableScrollSync ? `
                     const targetLine = message.line;
@@ -606,6 +720,44 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         });
 
         ${enableScrollSync ? `
+        // Cmd/Ctrl + mouse wheel to resize font
+        let fontTooltip = null;
+        let fontTooltipTimer = null;
+
+        function showFontTooltip(size) {
+            if (!fontTooltip) {
+                fontTooltip = document.createElement('div');
+                fontTooltip.style.cssText = 'position:fixed;top:12px;right:12px;background:var(--code-bg);color:var(--text-color);border:1px solid var(--border-color);padding:6px 14px;border-radius:6px;font-size:13px;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+                document.body.appendChild(fontTooltip);
+            }
+            fontTooltip.textContent = 'Font: ' + size + 'px';
+            fontTooltip.style.opacity = '1';
+            if (fontTooltipTimer) clearTimeout(fontTooltipTimer);
+            fontTooltipTimer = setTimeout(() => { fontTooltip.style.opacity = '0'; }, 1200);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key === 'Meta' || e.key === 'Control') {
+                showFontTooltip(parseInt(getComputedStyle(document.body).fontSize) || 16);
+                fontTooltip.textContent = '\u2318/Ctrl + Scroll to resize font';
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (fontTooltip) fontTooltip.style.opacity = '0';
+        });
+
+        document.addEventListener('wheel', (e) => {
+            if (e.metaKey || e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 2 : -2;
+                const currentSize = parseInt(getComputedStyle(document.body).fontSize) || 16;
+                const newSize = Math.max(10, Math.min(32, currentSize + delta));
+                showFontTooltip(newSize);
+                vscode.postMessage({ type: 'changeFontSize', delta: delta });
+            }
+        }, { passive: false });
+
         // Report scroll position to extension (preview -> editor sync)
         let scrollTimeout;
         window.addEventListener('scroll', () => {
@@ -679,22 +831,18 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
                 }
             }
 
-            // Add toolbars after Mermaid renders
-            setTimeout(() => {
+            // Add toolbars to mermaid diagrams (reusable function)
+            function attachMermaidToolbars() {
                 document.querySelectorAll('.mermaid').forEach(el => {
                     if (el.querySelector('.diagram-toolbar')) return;
 
-                    // Read initial scale from data attribute (set by markdownParser)
                     const initialScale = parseInt(el.getAttribute('data-scale') || '100', 10);
-                    if (initialScale !== 100) {
-                        el.setAttribute('data-scale', String(initialScale));
-                    }
 
                     const toolbar = document.createElement('div');
                     toolbar.className = 'diagram-toolbar';
                     toolbar.innerHTML =
                         '<button class="diagram-shrink" title="Shrink">−</button>' +
-                        '<span class="diagram-size-label">' + (initialScale || 100) + '%</span>' +
+                        '<span class="diagram-size-label">' + initialScale + '%</span>' +
                         '<button class="diagram-grow" title="Grow">+</button>' +
                         '<button class="diagram-reset" title="Reset">↺</button>';
                     el.prepend(toolbar);
@@ -719,7 +867,10 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
                         }
                     });
                 });
-            }, 2000);
+            }
+
+            // Initial toolbar attach after Mermaid renders
+            setTimeout(attachMermaidToolbars, 2000);
         })();
         ` : ''}
     </script>

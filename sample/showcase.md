@@ -59,7 +59,6 @@ sequenceDiagram
 
 ## 4. Service Architecture
 
-<!-- mermaid-scale: 90% -->
 ```mermaid
 flowchart TD
     Client[Client App] --> GW[API Gateway]
@@ -87,6 +86,7 @@ flowchart TD
 
 ## 5. Order State Machine
 
+<!-- mermaid-scale: 80% -->
 ```mermaid
 stateDiagram-v2
     [*] --> Received

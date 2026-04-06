@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { parseMarkdown, parseToc } from './markdownParser';
+import { parseMarkdown, parseToc } from '../src/markdownParser';
 
 // ============================================================
 // parseMarkdown tests

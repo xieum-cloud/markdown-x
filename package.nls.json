@@ -1,19 +1,15 @@
 {
   "markdown-x.commands.openPreview": "Mx: Open Preview",
-  "markdown-x.commands.openPreviewToSide": "Open Preview to the Side",
   "markdown-x.commands.refreshPreview": "Mx: Refresh Preview",
   "markdown-x.commands.changeTheme": "Mx: Change Theme",
-  "markdown-x.commands.toggleToc": "Toggle TOC Visibility",
   "markdown-x.commands.exportPdf": "Mx: Export to PDF",
   "markdown-x.commands.exportDocx": "Mx: Export to Word",
-  "markdown-x.commands.exportHwpx": "Export to HWP",
   "markdown-x.commands.print": "Mx: Print",
   "markdown-x.commands.increaseFontSize": "Mx: Increase Font Size",
   "markdown-x.commands.decreaseFontSize": "Mx: Decrease Font Size",
   "markdown-x.commands.setFontSize": "Mx: Set Font Size",
   "markdown-x.commands.changeFontFamily": "Mx: Change Font",
   "markdown-x.commands.togglePagePreview": "Mx: Page Preview",
-  "markdown-x.commands.togglePagePreviewOff": "Hide Page Preview",
   "markdown-x.commands.changePageSize": "Mx: Change Page Size",
   "markdown-x.commands.changeMargin": "Mx: Change Page Margin",
   "markdown-x.configuration.title": "Markdown X",
@@ -35,6 +31,4 @@
   "markdown-x.configuration.pdf.pageSize": "PDF page size",
   "markdown-x.configuration.pdf.margin": "PDF margin (CSS format: '20mm' or '20mm 15mm')",
   "markdown-x.configuration.pdf.headerFooter": "Show header/footer in PDF (title, page numbers)",
-  "markdown-x.views.toc": "Markdown X TOC",
-  "markdown-x.viewsContainers.activitybar.title": "Markdown X"
 }
