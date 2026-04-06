@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 (2026-04-06)
+
+- Fix scroll jump when switching files during preview
+- Fix diagram scale not applied in production build
+- Fix mermaid toolbar scope issue on content update
+
 ## 0.1.3 (2026-04-06)
 
 - Preview performance improvements
