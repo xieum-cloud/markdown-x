@@ -70,7 +70,7 @@ test('renders code blocks with syntax highlighting', () => {
 
 test('renders mermaid blocks as div.mermaid', () => {
     const html = parseMarkdown('```mermaid\ngraph TD\n  A-->B\n```');
-    assert.ok(html.includes('<div class="mermaid">'));
+    assert.ok(html.includes('<div class="mermaid" data-scale="100">'));
     assert.ok(html.includes('A-->B'));
     assert.ok(!html.includes('<pre>'));
 });

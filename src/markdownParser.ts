@@ -74,11 +74,7 @@ export function parseMarkdown(content: string, opts: ParseOptions = {}): string 
         if (lang === 'mermaid') {
             const scale = pendingMermaidScale || '100';
             pendingMermaidScale = '';
-            const ratio = parseInt(scale, 10) / 100;
-            const style = ratio !== 1
-                ? ` style="transform:scale(${ratio});transform-origin:top center;"`
-                : '';
-            return `<div class="mermaid" data-scale="${scale}"${style}>${code}</div>`;
+            return `<div class="mermaid" data-scale="${scale}">${code}</div>`;
         }
         let highlighted: string;
         if (lang && hljs.getLanguage(lang)) {

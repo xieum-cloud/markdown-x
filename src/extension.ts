@@ -273,6 +273,9 @@ export function activate(context: vscode.ExtensionContext) {
             const enableScrollSync = vscode.workspace.getConfiguration('markdown-x')
                 .get<boolean>('enableScrollSync', true);
             if (!enableScrollSync) return;
+            // Only sync scroll for the document currently being previewed
+            const previewDoc = previewProvider.getCurrentDocument();
+            if (!previewDoc || e.textEditor.document !== previewDoc) return;
             if (e.textEditor.document.languageId === 'markdown' && e.visibleRanges.length > 0) {
                 const topLine = e.visibleRanges[0].start.line;
                 if (topLine === lastScrollLine) return;

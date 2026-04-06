@@ -572,7 +572,9 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
                 theme: '${theme === 'dark' ? 'dark' : 'default'}',
                 securityLevel: 'loose'
             });
-            mermaid.run({ querySelector: '.mermaid' });
+            mermaid.run({ querySelector: '.mermaid' }).then(() => {
+                attachMermaidToolbars();
+            }).catch(() => {});
         }` : ''}
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -777,101 +779,106 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         ` : ''}
 
         ${enableMermaid ? `
-        // Diagram resize: click to select, +/- to resize
         // Diagram resize — hover to show toolbar, click buttons to resize
-        (function() {
-            function getScale(el) {
-                return parseInt(el.getAttribute('data-scale') || '100', 10);
-            }
+        function getScale(el) {
+            return parseInt(el.getAttribute('data-scale') || '100', 10);
+        }
 
-            function setScale(el, scale) {
-                scale = Math.max(30, Math.min(200, scale));
-                el.setAttribute('data-scale', String(scale));
-                const ratio = scale / 100;
-                const svg = el.querySelector('svg');
-                if (svg) {
-                    svg.style.transform = 'scale(' + ratio + ')';
-                    svg.style.transformOrigin = 'top center';
-                    const bbox = svg.getBBox ? svg.getBBox() : null;
-                    if (bbox) {
-                        el.style.height = (bbox.height * ratio + 20) + 'px';
-                    }
-                    el.style.overflow = 'hidden';
+        function setScale(el, scale) {
+            scale = Math.max(30, Math.min(200, scale));
+            el.setAttribute('data-scale', String(scale));
+            const ratio = scale / 100;
+            const svg = el.querySelector('svg');
+            if (svg) {
+                svg.style.transform = 'scale(' + ratio + ')';
+                svg.style.transformOrigin = 'top center';
+                const bbox = svg.getBBox ? svg.getBBox() : null;
+                if (bbox) {
+                    el.style.height = (bbox.height * ratio + 20) + 'px';
                 }
-                const label = el.querySelector('.diagram-size-label');
-                if (label) label.textContent = scale + '%';
+                el.style.overflow = 'hidden';
             }
+            const label = el.querySelector('.diagram-size-label');
+            if (label) label.textContent = scale + '%';
+        }
 
-            function resetScale(el) {
-                el.setAttribute('data-scale', '100');
-                const svg = el.querySelector('svg');
-                if (svg) {
-                    svg.style.transform = '';
-                    svg.style.transformOrigin = '';
-                }
-                el.style.height = '';
-                el.style.overflow = '';
-                const label = el.querySelector('.diagram-size-label');
-                if (label) label.textContent = '100%';
+        function resetScale(el) {
+            el.setAttribute('data-scale', '100');
+            const svg = el.querySelector('svg');
+            if (svg) {
+                svg.style.transform = '';
+                svg.style.transformOrigin = '';
             }
+            el.style.height = '';
+            el.style.overflow = '';
+            const label = el.querySelector('.diagram-size-label');
+            if (label) label.textContent = '100%';
+        }
 
-            function getMermaidIndex(el) {
-                const all = Array.from(document.querySelectorAll('.mermaid'));
-                return all.indexOf(el);
-            }
+        function getMermaidIndex(el) {
+            const all = Array.from(document.querySelectorAll('.mermaid'));
+            return all.indexOf(el);
+        }
 
-            function notifyScaleChange(el, scale) {
-                const idx = getMermaidIndex(el);
-                if (idx >= 0) {
-                    vscode.postMessage({
-                        type: 'updateMermaidScale',
-                        mermaidIndex: idx,
-                        scale: scale
-                    });
-                }
-            }
-
-            // Add toolbars to mermaid diagrams (reusable function)
-            function attachMermaidToolbars() {
-                document.querySelectorAll('.mermaid').forEach(el => {
-                    if (el.querySelector('.diagram-toolbar')) return;
-
-                    const initialScale = parseInt(el.getAttribute('data-scale') || '100', 10);
-
-                    const toolbar = document.createElement('div');
-                    toolbar.className = 'diagram-toolbar';
-                    toolbar.innerHTML =
-                        '<button class="diagram-shrink" title="Shrink">−</button>' +
-                        '<span class="diagram-size-label">' + initialScale + '%</span>' +
-                        '<button class="diagram-grow" title="Grow">+</button>' +
-                        '<button class="diagram-reset" title="Reset">↺</button>';
-                    el.prepend(toolbar);
-
-                    toolbar.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const btn = e.target.closest('button');
-                        if (!btn) return;
-                        let newScale;
-                        if (btn.classList.contains('diagram-shrink')) {
-                            newScale = getScale(el) - 10;
-                            setScale(el, newScale);
-                            notifyScaleChange(el, Math.max(30, newScale));
-                        } else if (btn.classList.contains('diagram-grow')) {
-                            newScale = getScale(el) + 10;
-                            setScale(el, newScale);
-                            notifyScaleChange(el, Math.min(200, newScale));
-                        } else if (btn.classList.contains('diagram-reset')) {
-                            resetScale(el);
-                            notifyScaleChange(el, 100);
-                        }
-                    });
+        function notifyScaleChange(el, scale) {
+            const idx = getMermaidIndex(el);
+            if (idx >= 0) {
+                vscode.postMessage({
+                    type: 'updateMermaidScale',
+                    mermaidIndex: idx,
+                    scale: scale
                 });
             }
+        }
 
-            // Initial toolbar attach after Mermaid renders
-            setTimeout(attachMermaidToolbars, 2000);
-        })();
+        // Add toolbars and apply initial scale to mermaid diagrams
+        function attachMermaidToolbars() {
+            document.querySelectorAll('.mermaid').forEach(el => {
+                if (el.querySelector('.diagram-toolbar')) return;
+
+                const initialScale = parseInt(el.getAttribute('data-scale') || '100', 10);
+
+                // Apply initial scale to SVG (not to the container div)
+                if (initialScale !== 100) {
+                    const svg = el.querySelector('svg');
+                    if (svg) {
+                        setScale(el, initialScale);
+                    }
+                }
+
+                const toolbar = document.createElement('div');
+                toolbar.className = 'diagram-toolbar';
+                toolbar.innerHTML =
+                    '<button class="diagram-shrink" title="Shrink">\\u2212</button>' +
+                    '<span class="diagram-size-label">' + initialScale + '%</span>' +
+                    '<button class="diagram-grow" title="Grow">+</button>' +
+                    '<button class="diagram-reset" title="Reset">\\u21BA</button>';
+                el.prepend(toolbar);
+
+                toolbar.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    let newScale;
+                    if (btn.classList.contains('diagram-shrink')) {
+                        newScale = getScale(el) - 10;
+                        setScale(el, newScale);
+                        notifyScaleChange(el, Math.max(30, newScale));
+                    } else if (btn.classList.contains('diagram-grow')) {
+                        newScale = getScale(el) + 10;
+                        setScale(el, newScale);
+                        notifyScaleChange(el, Math.min(200, newScale));
+                    } else if (btn.classList.contains('diagram-reset')) {
+                        resetScale(el);
+                        notifyScaleChange(el, 100);
+                    }
+                });
+            });
+        }
+
+        // Initial toolbar attach after Mermaid renders
+        setTimeout(attachMermaidToolbars, 2000);
         ` : ''}
     </script>
 </body>
