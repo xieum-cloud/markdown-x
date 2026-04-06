@@ -84,7 +84,8 @@ export function parseMarkdown(content: string, opts: ParseOptions = {}): string 
         if (lang && hljs.getLanguage(lang)) {
             highlighted = hljs.highlight(code, { language: lang }).value;
         } else {
-            highlighted = hljs.highlightAuto(code).value;
+            // Skip expensive auto-detection, use plain text
+            highlighted = escapeHtml(code);
         }
         return `<pre><code class="hljs language-${lang || 'plaintext'}">${highlighted}</code></pre>\n`;
     };

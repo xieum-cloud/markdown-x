@@ -252,11 +252,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('markdown-x.print', markdownGuard(printDocument)),
     );
 
-    // Document change listener
+    // Document change listener (debounced)
+    let updateTimer: ReturnType<typeof setTimeout> | undefined;
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument((e) => {
             if (e.document.languageId === 'markdown') {
-                previewProvider.updateContent(e.document);
+                if (updateTimer) clearTimeout(updateTimer);
+                updateTimer = setTimeout(() => {
+                    previewProvider.updateContent(e.document);
+                }, 300);
             }
         })
     );
