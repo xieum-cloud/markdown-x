@@ -163,52 +163,52 @@
         {
           "command": "markdown-x.togglePagePreview",
           "group": "navigation@1",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.exportPdf",
           "group": "navigation@2",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.exportDocx",
           "group": "navigation@3",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.changeFontFamily",
           "group": "1_mx@1",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.setFontSize",
           "group": "1_mx@2",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.changeTheme",
           "group": "1_mx@3",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.changePageSize",
           "group": "1_mx@4",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.changeMargin",
           "group": "1_mx@5",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.print",
           "group": "1_mx@6",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         },
         {
           "command": "markdown-x.refreshPreview",
           "group": "1_mx@7",
-          "when": "markdown-x:previewOpen"
+          "when": "editorLangId == markdown || activeWebviewPanelId == markdown-x-preview"
         }
       ],
       "editor/context": [

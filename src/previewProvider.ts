@@ -358,7 +358,12 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
 
         return parseMarkdown(content, {
             resolveImageUri: (src: string) => {
-                const absPath = path.isAbsolute(src) ? src : path.join(docDir, src);
+                // Strip file:// protocol if present
+                let cleanSrc = src;
+                if (cleanSrc.startsWith('file://')) {
+                    cleanSrc = cleanSrc.replace(/^file:\/\//, '');
+                }
+                const absPath = path.isAbsolute(cleanSrc) ? cleanSrc : path.join(docDir, cleanSrc);
                 return webview.asWebviewUri(vscode.Uri.file(absPath)).toString();
             }
         });
@@ -521,12 +526,19 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
 
         ${enableImageLightbox ? `
         .lightbox {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(0,0,0,0.92); z-index: 10000;
             justify-content: center; align-items: center; cursor: zoom-out;
+            margin: 0; padding: 0; border: none;
         }
-        .lightbox.active { display: flex; }
-        .lightbox img { max-width: 90%; max-height: 90%; object-fit: contain; cursor: default; }
+        .lightbox.active { display: flex !important; }
+        .lightbox img {
+            max-width: 90vw !important; max-height: 90vh !important;
+            object-fit: contain; cursor: default;
+            border-radius: 0 !important; transition: none !important;
+            position: static !important;
+        }
         ` : ''}
 
         .mermaid {
