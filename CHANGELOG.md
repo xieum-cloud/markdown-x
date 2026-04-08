@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 (2026-04-08)
+
+- Fix image loading for files outside document directory (workspace-wide resource access)
+
 ## 0.1.5 (2026-04-07)
 
 - Explorer context menu: right-click .md file to open preview

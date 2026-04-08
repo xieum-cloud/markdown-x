@@ -86,7 +86,8 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
                 retainContextWhenHidden: true,
                 localResourceRoots: [
                     this.extensionUri,
-                    vscode.Uri.file(path.dirname(document.fileName))
+                    vscode.Uri.file(path.dirname(document.fileName)),
+                    ...(vscode.workspace.workspaceFolders?.map(f => f.uri) || [])
                 ]
             }
         );
