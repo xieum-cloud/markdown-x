@@ -1,6 +1,5 @@
 {
   "markdown-x.commands.openPreview": "Mx: 미리보기 열기",
-  "markdown-x.commands.refreshPreview": "Mx: 미리보기 새로고침",
   "markdown-x.commands.changeTheme": "Mx: 테마 변경",
   "markdown-x.commands.exportPdf": "Mx: PDF 내보내기",
   "markdown-x.commands.exportDocx": "Mx: Word 내보내기",

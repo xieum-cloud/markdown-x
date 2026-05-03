@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 (2026-04-24)
+
+- Reliable auto-refresh: mermaid diagrams update correctly when source is edited, added, removed, or reordered (was previously index-based and could misalign)
+- In-preview search (Cmd/Ctrl+F): live highlight, Enter / Shift+Enter to navigate, ESC to close
+- Remove manual "Refresh Preview" command — auto-refresh handles all cases now
+
 ## 0.1.7 (2026-04-22)
 
 - Fix blank preview after VS Code restart when only preview panel remained

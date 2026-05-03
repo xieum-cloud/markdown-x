@@ -49,13 +49,6 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
-    // Refresh Preview
-    context.subscriptions.push(
-        vscode.commands.registerCommand('markdown-x.refreshPreview', () => {
-            previewProvider.refresh();
-        })
-    );
-
     // Configure Keyboard Shortcuts — open Keyboard Shortcuts UI filtered to markdown-x
     context.subscriptions.push(
         vscode.commands.registerCommand('markdown-x.configureKeybindings', () => {

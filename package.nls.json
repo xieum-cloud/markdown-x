@@ -1,6 +1,5 @@
 {
   "markdown-x.commands.openPreview": "Mx: Open Preview",
-  "markdown-x.commands.refreshPreview": "Mx: Refresh Preview",
   "markdown-x.commands.changeTheme": "Mx: Change Theme",
   "markdown-x.commands.exportPdf": "Mx: Export to PDF",
   "markdown-x.commands.exportDocx": "Mx: Export to Word",

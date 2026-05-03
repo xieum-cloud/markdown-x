@@ -360,18 +360,6 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         return this.panels.has(fileName);
     }
 
-    refresh(): void {
-        // Refresh the focused panel, or all if none focused
-        for (const ps of this.panels.values()) {
-            if (ps.previewFocused) {
-                ps.initialized = false;
-                this.updateContent(ps.document);
-                return;
-            }
-        }
-        this.refreshAll();
-    }
-
     refreshAll(): void {
         for (const ps of this.panels.values()) {
             ps.initialized = false;
@@ -636,6 +624,45 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         body.theme-sepia .hljs-string { color: #2e6b3a; }
         body.theme-sepia .hljs-comment { color: #8c7a6b; }
 
+        /* Search overlay */
+        .mx-search-bar {
+            display: none; position: fixed; top: 12px; right: 12px;
+            background: var(--code-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 6px; z-index: 9999;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            align-items: center; gap: 6px;
+            font-family: var(--font-family); font-size: 13px;
+        }
+        .mx-search-bar.active { display: flex; }
+        .mx-search-bar input {
+            background: var(--bg-color); color: var(--text-color);
+            border: 1px solid var(--border-color); border-radius: 4px;
+            padding: 4px 8px; font-size: 13px; width: 220px;
+            outline: none;
+        }
+        .mx-search-bar input:focus { border-color: var(--link-color); }
+        .mx-search-bar button {
+            background: var(--bg-color); color: var(--text-color);
+            border: 1px solid var(--border-color); border-radius: 4px;
+            cursor: pointer; padding: 2px 8px; font-size: 12px;
+            min-width: 28px;
+        }
+        .mx-search-bar button:hover { background: var(--border-color); }
+        .mx-search-bar button:disabled { opacity: 0.4; cursor: default; }
+        .mx-search-count {
+            color: var(--text-color); opacity: 0.7;
+            font-size: 11px; min-width: 60px; text-align: center;
+        }
+        mark.mx-search-hit {
+            background: rgba(255, 215, 0, 0.45);
+            color: inherit; border-radius: 2px;
+        }
+        mark.mx-search-hit-current {
+            background: rgba(255, 140, 0, 0.85);
+            color: white; border-radius: 2px;
+            outline: 2px solid rgba(255, 140, 0, 1);
+        }
+
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 5px; }
@@ -650,6 +677,14 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
     </div>
 
     ${enableImageLightbox ? `<div id="lightbox" class="lightbox"><img id="lightbox-img" src="" alt=""></div>` : ''}
+
+    <div id="mx-search-bar" class="mx-search-bar" role="search" aria-label="Find in preview">
+        <input id="mx-search-input" type="text" placeholder="Find" aria-label="Search text" />
+        <span id="mx-search-count" class="mx-search-count">0/0</span>
+        <button id="mx-search-prev" type="button" title="Previous (Shift+Enter)" aria-label="Previous match">↑</button>
+        <button id="mx-search-next" type="button" title="Next (Enter)" aria-label="Next match">↓</button>
+        <button id="mx-search-close" type="button" title="Close (Esc)" aria-label="Close search">✕</button>
+    </div>
 
     <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
@@ -693,35 +728,35 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
                     if (contentEl) {
                         const scrollPos = window.scrollY;
 
-                        // Detach existing mermaid diagrams (preserve original nodes with events)
+                        // Save existing mermaid diagrams keyed by their source text
+                        // (matching by source survives reorder/insert/delete; only edited
+                        // blocks force re-render)
                         ${enableMermaid ? `
-                        const savedMermaids = [];
+                        const savedMermaidsBySource = new Map();
                         contentEl.querySelectorAll('.mermaid').forEach((el) => {
-                            if (el.querySelector('svg')) {
-                                const placeholder = document.createComment('mermaid');
-                                el.replaceWith(placeholder);
-                                savedMermaids.push(el);
+                            const src = el.getAttribute('data-source');
+                            if (src && el.querySelector('svg') && !savedMermaidsBySource.has(src)) {
+                                savedMermaidsBySource.set(src, el);
                             }
                         });` : ''}
 
                         contentEl.innerHTML = message.html;
 
-                        // Restore original mermaid nodes (with SVG, toolbar, and event listeners intact)
+                        // Reuse SVGs for unchanged blocks; let mermaid.run() render the rest
                         ${enableMermaid ? `
-                        const newMermaids = contentEl.querySelectorAll('.mermaid');
                         let needsNewRender = false;
-                        let savedIdx = 0;
-                        newMermaids.forEach((el) => {
-                            if (savedIdx < savedMermaids.length) {
-                                el.replaceWith(savedMermaids[savedIdx]);
-                                savedIdx++;
+                        contentEl.querySelectorAll('.mermaid').forEach((el) => {
+                            const src = el.getAttribute('data-source');
+                            const saved = src ? savedMermaidsBySource.get(src) : null;
+                            if (saved) {
+                                el.replaceWith(saved);
                             } else {
                                 needsNewRender = true;
                             }
                         });
                         if (needsNewRender && typeof mermaid !== 'undefined') {
                             mermaid.run({ querySelector: '.mermaid:not([data-processed])' }).then(() => {
-                                setTimeout(attachMermaidToolbars, 500);
+                                setTimeout(attachMermaidToolbars, 100);
                             }).catch(() => {});
                         }` : ''}
 
@@ -972,6 +1007,159 @@ export class MarkdownPreviewProvider implements vscode.WebviewPanelSerializer {
         // Initial toolbar attach after Mermaid renders
         setTimeout(attachMermaidToolbars, 2000);
         ` : ''}
+
+        // ===== In-preview search (Cmd/Ctrl+F) =====
+        (function() {
+            const bar = document.getElementById('mx-search-bar');
+            const input = document.getElementById('mx-search-input');
+            const countEl = document.getElementById('mx-search-count');
+            const prevBtn = document.getElementById('mx-search-prev');
+            const nextBtn = document.getElementById('mx-search-next');
+            const closeBtn = document.getElementById('mx-search-close');
+            if (!bar || !input) return;
+
+            let hits = [];
+            let currentIdx = -1;
+
+            function clearHits() {
+                document.querySelectorAll('mark.mx-search-hit, mark.mx-search-hit-current').forEach(m => {
+                    const parent = m.parentNode;
+                    if (!parent) return;
+                    while (m.firstChild) parent.insertBefore(m.firstChild, m);
+                    parent.removeChild(m);
+                    parent.normalize();
+                });
+                hits = [];
+                currentIdx = -1;
+                updateCount();
+            }
+
+            function updateCount() {
+                if (!countEl) return;
+                if (hits.length === 0) {
+                    countEl.textContent = input.value ? '0/0' : '';
+                } else {
+                    countEl.textContent = (currentIdx + 1) + '/' + hits.length;
+                }
+                if (prevBtn) prevBtn.disabled = hits.length === 0;
+                if (nextBtn) nextBtn.disabled = hits.length === 0;
+            }
+
+            function highlight(query) {
+                clearHits();
+                if (!query) { updateCount(); return; }
+                const root = document.getElementById('content');
+                if (!root) return;
+
+                const lowerQuery = query.toLowerCase();
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                    acceptNode: (node) => {
+                        // Skip text inside script/style/SVG
+                        const p = node.parentElement;
+                        if (!p) return NodeFilter.FILTER_REJECT;
+                        const tag = p.tagName;
+                        if (tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+                        if (p.closest('svg')) return NodeFilter.FILTER_REJECT;
+                        if (!node.nodeValue || !node.nodeValue.toLowerCase().includes(lowerQuery)) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                });
+
+                const targets = [];
+                let n;
+                while ((n = walker.nextNode())) targets.push(n);
+
+                targets.forEach(textNode => {
+                    const text = textNode.nodeValue;
+                    const lower = text.toLowerCase();
+                    let pos = 0;
+                    const fragments = document.createDocumentFragment();
+                    let foundAt;
+                    while ((foundAt = lower.indexOf(lowerQuery, pos)) !== -1) {
+                        if (foundAt > pos) {
+                            fragments.appendChild(document.createTextNode(text.slice(pos, foundAt)));
+                        }
+                        const mark = document.createElement('mark');
+                        mark.className = 'mx-search-hit';
+                        mark.textContent = text.slice(foundAt, foundAt + query.length);
+                        fragments.appendChild(mark);
+                        hits.push(mark);
+                        pos = foundAt + query.length;
+                    }
+                    if (pos < text.length) {
+                        fragments.appendChild(document.createTextNode(text.slice(pos)));
+                    }
+                    textNode.parentNode.replaceChild(fragments, textNode);
+                });
+
+                if (hits.length > 0) {
+                    currentIdx = 0;
+                    focusCurrent();
+                }
+                updateCount();
+            }
+
+            function focusCurrent() {
+                hits.forEach((m, i) => {
+                    m.classList.toggle('mx-search-hit-current', i === currentIdx);
+                    m.classList.toggle('mx-search-hit', i !== currentIdx);
+                });
+                if (currentIdx >= 0 && hits[currentIdx]) {
+                    hits[currentIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                updateCount();
+            }
+
+            function move(delta) {
+                if (hits.length === 0) return;
+                currentIdx = (currentIdx + delta + hits.length) % hits.length;
+                focusCurrent();
+            }
+
+            function openBar() {
+                bar.classList.add('active');
+                input.focus();
+                input.select();
+            }
+
+            function closeBar() {
+                bar.classList.remove('active');
+                clearHits();
+                input.value = '';
+            }
+
+            // Open with Cmd/Ctrl+F
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && (e.key === 'f' || e.key === 'F')) {
+                    e.preventDefault();
+                    openBar();
+                } else if (e.key === 'Escape' && bar.classList.contains('active')) {
+                    e.preventDefault();
+                    closeBar();
+                }
+            });
+
+            // Debounced live search
+            let searchTimer = null;
+            input.addEventListener('input', () => {
+                if (searchTimer) clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => highlight(input.value), 150);
+            });
+
+            // Enter / Shift+Enter navigation in input
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    move(e.shiftKey ? -1 : 1);
+                }
+            });
+
+            if (prevBtn) prevBtn.addEventListener('click', () => move(-1));
+            if (nextBtn) nextBtn.addEventListener('click', () => move(1));
+            if (closeBtn) closeBtn.addEventListener('click', closeBar);
+        })();
     </script>
 </body>
 </html>`;

@@ -74,7 +74,11 @@ export function parseMarkdown(content: string, opts: ParseOptions = {}): string 
         if (lang === 'mermaid') {
             const scale = pendingMermaidScale || '100';
             pendingMermaidScale = '';
-            return `<div class="mermaid" data-scale="${scale}">${code}</div>`;
+            // Encode source as data attribute so updateContent can match by content
+            // (instead of fragile index-based matching, which breaks when blocks
+            // are added/removed/reordered or their content edited)
+            const encodedSource = encodeURIComponent(code);
+            return `<div class="mermaid" data-scale="${scale}" data-source="${encodedSource}">${code}</div>`;
         }
         let highlighted: string;
         if (lang && hljs.getLanguage(lang)) {
